@@ -144,7 +144,7 @@ if uploaded_file is not None:
     colors = sns.color_palette("pastel", len(CLASSES))
 
     # Création du graphique
-    sns.barplot(x=CLASSES, y=predictions[0], hue=CLASSES, palette=colors, ax=ax, legend=False)
+    sns.barplot(x=CLASSES, y=predictions[0], palette=colors, ax=ax)
 
     # Ajustement des textes et du format
     ax.set_xticks(range(len(CLASSES)))  # Définit explicitement les ticks
