@@ -78,7 +78,6 @@ else:
 
 st.sidebar.subheader("📌 Options d'affichage")
 view_results = st.sidebar.checkbox("Afficher les matrices de confusion & courbes")
-view_test_images = st.sidebar.checkbox("Afficher les images du dataset TEST")
 view_distribution = st.sidebar.checkbox("📊 Afficher la distribution des images")
 view_transformations = st.sidebar.checkbox("🎨 Voir les transformations d'images")
 
