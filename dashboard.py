@@ -173,4 +173,4 @@ numpy
 matplotlib
 seaborn
 opencv-python
-gdown
+gdown""")
