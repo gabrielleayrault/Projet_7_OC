@@ -8,6 +8,7 @@ from tensorflow.keras.preprocessing import image
 import cv2
 import os
 import gdown
+from PIL import Image
 
 # ================================
 # 1. Configuration du Dashboard
@@ -171,7 +172,7 @@ if view_transformations:
         return img, img_array
 
     if uploaded_file is not None:
-        img_original = image.load_img(uploaded_file)
+        img_original = Image.open(uploaded_file)
         img, img_array = preprocess_image(uploaded_file)
 
         col1, col2 = st.columns(2)
