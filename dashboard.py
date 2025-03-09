@@ -132,7 +132,57 @@ if uploaded_file and models_available:
     st.write(f"**Confiance : {confidence:.2f}%**")
 
 # ================================
-# 5. Déploiement sur le Cloud
+# 5. Affichage des probabilités sous forme de graphique
+# ================================
+
+st.subheader("📊 Probabilités de classification")
+
+if uploaded_file is not None:
+    fig, ax = plt.subplots(figsize=(10, 5))  # Augmentation de la taille du graphique
+
+    # Utilisation d’une palette plus claire et distincte
+    colors = sns.color_palette("pastel", len(CLASSES))
+
+    # Création du graphique
+    sns.barplot(x=CLASSES, y=predictions[0], hue=CLASSES, palette=colors, ax=ax, legend=False)
+
+    # Ajustement des textes et du format
+    ax.set_xticks(range(len(CLASSES)))  # Définit explicitement les ticks
+    ax.set_xticklabels(CLASSES, rotation=30, fontsize=12)
+    ax.set_ylabel("Probabilité", fontsize=14)
+    ax.set_title(f"Scores de confiance - {selected_model}", fontsize=16)
+
+    st.pyplot(fig)  # Affichage dans Streamlit
+else:
+    st.warning("⚠️ Veuillez uploader une image pour voir les probabilités de classification.")
+
+# ================================
+# 6. Comparaison avant / après transformations
+# ================================
+
+if view_transformations:
+    st.subheader("🎨 Transformations effectuées sur les images")
+
+    uploaded_file = st.file_uploader("Téléchargez une image pour voir les transformations", type=["jpg", "png", "jpeg"], key="uploader_transform")
+
+    def preprocess_image(image_path):
+        img = image.load_img(image_path, target_size=(224, 224))
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0
+        return img, img_array
+
+    if uploaded_file is not None:
+        img_original = image.load_img(uploaded_file)
+        img, img_array = preprocess_image(uploaded_file)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image(img_original, caption="Image originale", use_container_width=True)
+        with col2:
+            st.image(img, caption="Image après transformation (redimensionnement, normalisation)", use_container_width=True)
+
+# ================================
+# 7. Déploiement sur le Cloud
 # ================================
 
 st.sidebar.subheader("🚀 Déploiement sur Streamlit Cloud")
@@ -151,25 +201,53 @@ gdown
 """)
 
 # ================================
-# 6. Mode accessibilité (WCAG)
+# 8. Mode accessibilité (WCAG)
 # ================================
-st.sidebar.subheader("♿ Accessibilité") 
-
-high_contrast = st.sidebar.checkbox("🎨 Mode High Contrast")
-large_text = st.sidebar.checkbox("🔠 Texte agrandi")
+st.sidebar.subheader("♿ Accessibilité")
+high_contrast = st.sidebar.checkbox("🎨 Activer le mode High Contrast (graphique uniquement)", value=False)
+large_text = st.sidebar.checkbox("🔠 Agrandir le texte")
 
 if high_contrast:
-    plt.style.use('dark_background')
+        plt.style.use('dark_background')
 else:
-    plt.style.use('default')
+        plt.style.use('default')
 
+# Appliquer une taille de texte normale par défaut
+st.markdown("""
+    <style>
+        body { font-size: 16px !important; }  /* Taille normale */
+        h1, h2, h3, h4 { font-size: 22px !important; }
+    </style>
+""", unsafe_allow_html=True)
+
+# Si l'option "Agrandir le texte" est cochée, augmenter la taille
 if large_text:
-    st.markdown(
-        """
+    st.markdown("""
         <style>
-            body { font-size: 20px !important; }
+            body { font-size: 20px !important; }  /* Texte plus grand */
             h1, h2, h3, h4 { font-size: 26px !important; }
         </style>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+
+# 2. Texte alternatif et instructions claires
+
+explanations_mode = st.sidebar.checkbox("📝 Activer les explications simplifiées")
+
+if explanations_mode:
+    st.write("""
+        **Comment utiliser cette section ?**  
+        1️⃣ Cliquez sur "Parcourir" et sélectionnez une image d’un chien sur votre appareil.  
+        2️⃣ Le modèle va analyser l’image et prédire la race du chien.  
+        3️⃣ Vous verrez aussi un score indiquant la fiabilité de la prédiction.
+    """)
+
+# 3. Raccourci Clavier (Validation via "Entrée")
+st.markdown("""
+    <script>
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            document.querySelector("button").click();
+        }
+    });
+    </script>
+""", unsafe_allow_html=True)
