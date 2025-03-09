@@ -182,9 +182,9 @@ if view_transformations:
 
         col1, col2 = st.columns(2)
         with col1:
-            st.image(img_original, caption="Image originale", use_container_width=True)
+            st.image(img_original, caption="Image originale")
         with col2:
-            st.image(img, caption="Image après transformation (redimensionnement, normalisation)", use_container_width=True)
+            st.image(img, caption="Image après transformation (redimensionnement, normalisation)")
 
 # ================================
 # 7. Déploiement sur le Cloud
