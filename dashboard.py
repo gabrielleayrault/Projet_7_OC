@@ -9,39 +9,24 @@ import cv2
 import os
 import gdown
 
-# Liens Google Drive 
+# ================================
+# 1. Liens Google Drive & Modèles
+# ================================
+
 url_vgg16 = "https://drive.google.com/uc?id=1VMkwLvWVipr3w8muEcuRy2FEhsI4BSeN"
 url_convnext = "https://drive.google.com/uc?id=1JKxBONzDkTwG7F_78se6YI54g0ILvmoK"
 
 MODEL_PATH_VGG16 = "VGG16_tfdata_with_aug_best.keras"
 MODEL_PATH_CONVNEXT = "best_model_convnext.keras"
 
-# Fonction pour télécharger le modèle si absent
 def download_model(model_path, url):
+    """Télécharge un modèle s'il n'existe pas."""
     if not os.path.exists(model_path):
         st.info(f"Téléchargement du modèle {model_path} en cours...")
         gdown.download(url, model_path, quiet=False)
 
-# Télécharger les modèles si nécessaire
-download_model(MODEL_PATH_VGG16, url_vgg16)
-download_model(MODEL_PATH_CONVNEXT, url_convnext)
-
-# Vérification après téléchargement
-if os.path.exists(MODEL_PATH_VGG16) and os.path.exists(MODEL_PATH_CONVNEXT):
-    st.success("📥 Modèles téléchargés avec succès !")
-else:
-    st.error("❌ Erreur dans le téléchargement des modèles.")
-
-# Charger le modèle après téléchargement
-@st.cache_resource
-def load_selected_model(model_name):
-    if model_name == "VGG16":
-        return load_model(MODEL_PATH_VGG16)
-    else:
-        return load_model(MODEL_PATH_CONVNEXT)
-
 # ================================
-# 1. Configuration du Dashboard
+# 2. Configuration du Dashboard
 # ================================
 
 st.set_page_config(page_title="Comparaison VGG16 vs ConvNeXt", layout="wide")
@@ -49,18 +34,46 @@ st.set_page_config(page_title="Comparaison VGG16 vs ConvNeXt", layout="wide")
 st.title("🐶 Classification de races de chiens : VGG16 vs ConvNeXt")
 st.markdown("Ce dashboard compare les performances de **VGG16** et **ConvNeXt** sur le **Stanford Dogs Dataset**.")
 
-# ================================
-# 2. Chargement des modèles
-# ================================
-
 st.sidebar.header("📌 Sélection du modèle")
 
-# Vérifier si la clé est bien initialisée avant d'utiliser st.sidebar.radio
+# Bouton pour télécharger les modèles
+if st.sidebar.button("📥 Télécharger les modèles"):
+    download_model(MODEL_PATH_VGG16, url_vgg16)
+    download_model(MODEL_PATH_CONVNEXT, url_convnext)
 
-if "selected_model" not in st.session_state:
-    st.session_state.selected_model = "VGG16"  # Valeur par défaut
+    # Vérification après téléchargement
+    if os.path.exists(MODEL_PATH_VGG16) and os.path.exists(MODEL_PATH_CONVNEXT):
+        st.sidebar.success("📥 Modèles téléchargés avec succès !")
+    else:
+        st.sidebar.error("❌ Erreur dans le téléchargement des modèles.")
 
-selected_model = st.sidebar.radio("Choisissez un modèle :", ["VGG16", "ConvNeXt"])
+# Vérifier si les modèles existent avant d'afficher la sélection
+models_available = os.path.exists(MODEL_PATH_VGG16) and os.path.exists(MODEL_PATH_CONVNEXT)
+
+if models_available:
+    # Sélection du modèle
+    if "selected_model" not in st.session_state:
+        st.session_state.selected_model = "VGG16"
+
+    selected_model = st.sidebar.radio("Choisissez un modèle :", ["VGG16", "ConvNeXt"])
+
+    @st.cache_resource
+    def load_selected_model(model_name):
+        """Charge le modèle sélectionné."""
+        if model_name == "VGG16":
+            st.info("📥 Chargement du modèle VGG16...")
+            return load_model(MODEL_PATH_VGG16)
+        else:
+            st.info("📥 Chargement du modèle ConvNeXt...")
+            return load_model(MODEL_PATH_CONVNEXT)
+
+    # Bouton pour charger le modèle
+    if st.sidebar.button("🔄 Charger le modèle"):
+        model = load_selected_model(selected_model)
+        st.sidebar.success("✅ Modèle chargé avec succès !")
+
+else:
+    st.sidebar.warning("⚠️ Téléchargez d'abord les modèles pour les sélectionner.")
 
 # ================================
 # 3. Onglets interactifs 
