@@ -66,10 +66,15 @@ if models_available:
         else:
             return load_model(MODEL_PATH_CONVNEXT)
 
-    # Bouton pour charger le modèle
-    if st.sidebar.button("🔄 Charger le modèle"):
-        model = load_selected_model(selected_model)
-        st.sidebar.success("✅ Modèle chargé avec succès !")
+    # Charger le modèle uniquement si ce n'est pas déjà fait
+    if "model" not in st.session_state or st.session_state.selected_model != selected_model:
+        st.session_state.model = load_selected_model(selected_model)
+        st.session_state.selected_model = selected_model  # Mettre à jour le modèle sélectionné
+        st.sidebar.success(f"✅ Modèle {selected_model} chargé avec succès !")
+
+    # Utilisation du modèle
+    model = st.session_state.model
+
 else:
     st.sidebar.warning("⚠️ Téléchargez d'abord les modèles pour les sélectionner.")
 
